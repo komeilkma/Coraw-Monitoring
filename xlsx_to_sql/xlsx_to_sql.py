@@ -1,15 +1,13 @@
 import os
 import pandas as pd
 
-folder_path = "your_folder_path_here"
+folder_path = "folder_path"
 database_name = "train"
 sql_script = ""
-
 excel_files = [f for f in os.listdir(folder_path) if f.endswith('.xlsx')]
 
 create_db_sql = f"CREATE DATABASE IF NOT EXISTS {database_name};"
 sql_script += create_db_sql + "\n"
-
 use_db_sql = f"USE {database_name};"
 sql_script += use_db_sql + "\n"
 
@@ -20,8 +18,12 @@ for excel_file in excel_files:
     create_table_sql = f"CREATE TABLE {table_name} ("
     
     for col_name, col_type in zip(df.columns, df.dtypes):
-        sql_type = col_type.name
-        create_table_sql += f"{col_name} {sql_type}, "
+        if str(col_type) == 'int64':
+            mysql_data_type = 'BIGINT'
+        else:
+            mysql_data_type = 'VARCHAR(255)'
+        
+        create_table_sql += f"{col_name} {mysql_data_type}, "
     
     create_table_sql = create_table_sql[:-2]
     create_table_sql += ");\n"
